@@ -1,0 +1,9 @@
+! version = 2.0
++ привет
+- hello
++ пока
+- goodbye
++ напомни мне [пожалуйста] * [пожалуйста]
+- remind <get name> to "<star1>"
++ *
+- unintelligible
