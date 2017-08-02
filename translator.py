@@ -69,12 +69,7 @@ class TranslatorServer(object):
         os.unlink(self._path)
         
 
-if __name__ == '__main__':
-    logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
-    parser = argparse.ArgumentParser(description="pa2human")
-    parser.add_argument("--socket", default="/tmp/tr_socket", help="Socket name")
-    args = parser.parse_args()
-    
+def main(args):
     loop = asyncio.get_event_loop()
     for signame in (signal.SIGINT, signal.SIGTERM):
         loop.add_signal_handler(signame, loop.stop)
@@ -90,3 +85,10 @@ if __name__ == '__main__':
     server.run_forever()
 
     server.stop()
+
+if __name__ == '__main__':
+    logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+    parser = argparse.ArgumentParser(description="pa2human")
+    parser.add_argument("--socket", default="/tmp/tr_socket", help="Socket name")
+    args = parser.parse_args()
+    main(args)
