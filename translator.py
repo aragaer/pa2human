@@ -79,18 +79,12 @@ if __name__ == '__main__':
     for signame in (signal.SIGINT, signal.SIGTERM):
         loop.add_signal_handler(signame, loop.stop)
 
-    human2pa = RiveScript(utf8=True)
-    human2pa.load_file("parse.rive")
-    human2pa.sort_replies()
-
-    pa2human = RiveScript(utf8=True)
-    pa2human.load_file("translate.rive")
-    pa2human.load_file("cron.rive")
-    pa2human.sort_replies()
-    bots = {
-        'human2pa': human2pa,
-        'pa2human': pa2human,
-    }
+    bots = {}
+    for bot_name in ('human2pa', 'pa2human'):
+        bot = RiveScript(utf8=True)
+        bot.load_directory(bot_name)
+        bot.sort_replies()
+        bots[bot_name] = bot
 
     server = TranslatorServer(args.socket, loop, bots)
     server.run_forever()
