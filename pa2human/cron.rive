@@ -1,5 +1,8 @@
 ! version = 2.0
++ cron *
+@ <star>
 + did you check notes
 - Ты не забыл перечитать свои заметки за сегодня?
+- Ты уже {random}проверил|перечитал{/random} свои сегодняшние заметки?
 + go to bed
-- Иди спать уже!
+- {random}Пора|Иди{/random} спать{random} уже|{/random}!

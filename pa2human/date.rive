@@ -1,0 +1,29 @@
+! version = 2.0
+
+> object format_date python
+  date_str = args[0]
+  year = date_str[:4]
+  month = int(date_str[4:6])
+  day = int(date_str[6:])
+  return "{} {} {}".format(day, month, year)
+< object
++ date *
+@ human date <call>format_date <star></call>
+
++ month gen #
+* <star> == 1 => января
+* <star> == 2 => февраля
+* <star> == 3 => марта
+* <star> == 4 => апреля
+* <star> == 5 => мая
+* <star> == 6 => июня
+* <star> == 7 => июля
+* <star> == 8 => августа
+* <star> == 9 => сентября
+* <star> == 10 => октября
+* <star> == 11 => ноября
+* <star> == 12 => декабря
+- месяц номер ?<star>?
+
++ human date # # #
+- <star1> {@month gen <star2>} <star3>

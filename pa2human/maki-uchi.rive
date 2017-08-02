@@ -1,0 +1,11 @@
+! version = 2.0
++ makiuchi last today
+- Сегодня ты свою норме маки-ути сделал{random}|, молодец|, умница{/random}!
++ makiuchi last never
+- Ты вообще не делал маки-ути!
++ makiuchi last *
+- Последний раз ты делал маки-ути {@date <star>}, а сегодня еще не делал!
++ makiuchi earliest *
+- Ты ушел в прошлое до {@date <star>}
++ makiuchi skipped *
+- Ты пропустил <star>.
