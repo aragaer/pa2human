@@ -50,6 +50,8 @@ class TranslatorServer(object):
                 result = json.dumps(event, ensure_ascii=False)
                 sresult = "{}\n".format(result).encode()
                 writer.write(sresult)
+        except ConnectionResetError:
+            pass
         except asyncio.CancelledError:
             pass
 
