@@ -21,6 +21,7 @@ class TranslatorServer(object):
         self._bots = bots
         self._server = None
         self._writers = []
+        self._logger = logging.getLogger("TR")
 
     async def start_server(self):
         if os.path.exists(self._path):
@@ -32,6 +33,14 @@ class TranslatorServer(object):
         self._loop.create_task(self.start_server())
         self._loop.run_forever()
 
+    def process_command(self, command, data):
+        if command == 'refresh':
+            for bot_name in self._bots.keys():
+                bot = RiveScript(utf8=True)
+                bot.load_directory(bot_name)
+                bot.sort_replies()
+                self._bots[bot_name] = bot
+
     async def run_client(self, reader, writer):
         try:
             while True:
@@ -41,21 +50,27 @@ class TranslatorServer(object):
                 data = sdata.decode().strip()
                 if not data:
                     continue
+                self._logger.debug("client sent %s", data)
                 event = json.loads(data)
-                user = event.get('user', 'user')
-                bot = event.get('bot', 'human2pa')
-                rs = self._bots[bot]
-                rs.set_uservar(user, "name", user)
-                event['reply'] = rs.reply(user, event['text'])
-                result = json.dumps(event, ensure_ascii=False)
-                sresult = "{}\n".format(result).encode()
-                writer.write(sresult)
+                if 'command' in event:
+                    self.process_command(event['command'], event)
+                else:
+                    user = event.get('user', 'user')
+                    bot = event.get('bot', 'human2pa')
+                    rs = self._bots[bot]
+                    rs.set_uservar(user, "name", user)
+                    event['reply'] = rs.reply(user, event['text'])
+                    result = json.dumps(event, ensure_ascii=False)
+                    self._logger.debug("returning to client %s", result)
+                    sresult = "{}\n".format(result).encode()
+                    writer.write(sresult)
         except ConnectionResetError:
             pass
         except asyncio.CancelledError:
             pass
 
     def accept_client(self, reader, writer):
+        self._logger.debug("client")
         self._writers.append(writer)
         task = self._loop.create_task(self.run_client(reader, writer))
         task.add_done_callback(partial(self.close_writer, writer))

@@ -6,4 +6,16 @@
 + напомни мне [пожалуйста] * [пожалуйста]
 - remind <get name> to "<star1>"
 + *
-- unintelligible
+- unintelligible <star>
++ спасибо
+- thank you
++ да
+- yes
++ нет
+- no
++ (да|нет) *
+- {@ <star1>} {@ <star2>}
++ (молодец|умница)
+- good
++ (позже|потом)
+- later
