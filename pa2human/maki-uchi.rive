@@ -1,6 +1,6 @@
 ! version = 2.0
 + makiuchi last today
-- Сегодня ты свою норме маки-ути сделал{random}|, молодец|, умница{/random}!
+- Сегодня ты свою норму маки-ути сделал{random}|, молодец|, умница{/random}!
 + makiuchi last never
 - Ты вообще не делал маки-ути!
 + makiuchi last *
