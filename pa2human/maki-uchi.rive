@@ -10,3 +10,5 @@
 - Ты ушел в прошлое до {@date <star>}
 + makiuchi skipped *
 - Ты пропустил <star>.
++ makiuchi only # on *
+- Ты сделал всего <star1> маки-ути <star2>
