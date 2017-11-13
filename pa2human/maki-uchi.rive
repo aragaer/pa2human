@@ -6,6 +6,7 @@
 + makiuchi last *
 - Последний раз ты делал маки-ути {@date <star>}, а сегодня еще не делал!
 + makiuchi earliest *
+* <call>format_date <star></call> == 0 days ago => И все
 - Ты ушел в прошлое до {@date <star>}
 + makiuchi skipped *
 - Ты пропустил <star>.

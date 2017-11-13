@@ -46,6 +46,8 @@
 * <star> == 8 => восемь
 * <star> == 9 => девять
 
++ human date 0 days ago
+- сегодня
 + human date 1 days ago
 - вчера
 + human date 2 days ago
