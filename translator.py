@@ -59,7 +59,10 @@ class TranslatorServer(object):
                     bot = event.get('bot', 'human2pa')
                     rs = self._bots[bot]
                     rs.set_uservar(user, "name", user)
-                    event['reply'] = rs.reply(user, event['text'])
+                    if isinstance(event['text'], list):
+                        event['reply'] = [rs.reply(user, line) for line in event['text']]
+                    else:
+                        event['reply'] = rs.reply(user, event['text'])
                     result = json.dumps(event, ensure_ascii=False)
                     self._logger.debug("returning to client %s", result)
                     sresult = "{}\n".format(result).encode()
