@@ -13,16 +13,35 @@ from functools import partial
 
 from rivescript.rivescript import RiveScript
 
+from bayes import classify, load_data
+
+
+def translate(event, func):
+    if isinstance(event['text'], list):
+        event['reply'] = [func(line) for line in event['text']]
+    else:
+        event['reply'] = func(event['text'])
+
+
+def rive_translate(user, rs, event):
+    rs.set_uservar(user, "name", user)
+    translate(event, partial(rs.reply, user))
+
+
+def bayes_translate(event, b):
+    translate(event, lambda line: classify(line, *b))
+
 
 class TranslatorServer(object):
 
-    def __init__(self, path, loop, bots):
+    def __init__(self, path, loop, bots, bayes):
         self._path = path
         self._loop = loop
         self._bots = bots
         self._server = None
         self._writers = []
         self._logger = logging.getLogger("TR")
+        self._bayes = bayes
 
     async def start_server(self):
         if os.path.exists(self._path):
@@ -59,12 +78,10 @@ class TranslatorServer(object):
                 else:
                     user = event.get('user', 'user')
                     bot = event.get('bot', 'human2pa')
-                    rs = self._bots[bot]
-                    rs.set_uservar(user, "name", user)
-                    if isinstance(event['text'], list):
-                        event['reply'] = [rs.reply(user, line) for line in event['text']]
+                    if bot == 'pa2human':
+                        rive_translate(user, self._bots[bot], event)
                     else:
-                        event['reply'] = rs.reply(user, event['text'])
+                        bayes_translate(event, self._bayes)
                     result = json.dumps(event, ensure_ascii=False)
                     self._logger.debug("returning to client %s", result)
                     sresult = "{}\n".format(result).encode()
@@ -103,7 +120,7 @@ def main(args):
         bot.sort_replies()
         bots[bot_name] = bot
 
-    server = TranslatorServer(args.socket, loop, bots)
+    server = TranslatorServer(args.socket, loop, bots, bayes=load_data())
     server.run_forever()
 
     server.stop()
