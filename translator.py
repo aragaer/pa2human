@@ -2,6 +2,7 @@
 
 import argparse
 import asyncio
+import atexit
 import json
 import logging
 import os
@@ -28,6 +29,7 @@ class TranslatorServer(object):
             os.unlink(self._path)
         self._server = await asyncio.start_unix_server(
             self.accept_client, path=self._path)
+        atexit.register(os.unlink, self._path)
 
     def run_forever(self):
         self._loop.create_task(self.start_server())
