@@ -14,15 +14,23 @@ from functools import partial
 from rivescript.rivescript import RiveScript
 
 
+def for_each(text, func):
+    if isinstance(text, list):
+        return [func(line) for line in text]
+    else:
+        return func(text)
+
+
 class TranslatorServer(object):
 
-    def __init__(self, path, loop, bots):
+    def __init__(self, path, loop, bots, samples_dir):
         self._path = path
         self._loop = loop
         self._bots = bots
         self._server = None
         self._writers = []
         self._logger = logging.getLogger("TR")
+        self._samples_dir = samples_dir
 
     async def start_server(self):
         if os.path.exists(self._path):
@@ -61,10 +69,12 @@ class TranslatorServer(object):
                     bot = event.get('bot', 'human2pa')
                     rs = self._bots[bot]
                     rs.set_uservar(user, "name", user)
-                    if isinstance(event['text'], list):
-                        event['reply'] = [rs.reply(user, line) for line in event['text']]
-                    else:
-                        event['reply'] = rs.reply(user, event['text'])
+                    event['reply'] = for_each(event['text'], partial(rs.reply, user))
+                    if bot == 'human2pa':
+                        with open(os.path.join(self._samples_dir, "human.txt"), "a") as human:
+                            for_each(event['text'], partial(print, file=human))
+                        with open(os.path.join(self._samples_dir, "bot.txt"), "a") as bot:
+                            for_each(event['reply'], partial(print, file=bot))
                     result = json.dumps(event, ensure_ascii=False)
                     self._logger.debug("returning to client %s", result)
                     sresult = "{}\n".format(result).encode()
@@ -88,8 +98,7 @@ class TranslatorServer(object):
         for writer in self._writers:
             writer.close()
         self._server.close()
-        os.unlink(self._path)
-        
+
 
 def main(args):
     loop = asyncio.get_event_loop()
@@ -103,7 +112,8 @@ def main(args):
         bot.sort_replies()
         bots[bot_name] = bot
 
-    server = TranslatorServer(args.socket, loop, bots)
+    server = TranslatorServer(args.socket, loop, bots,
+                              os.path.join(os.path.dirname(__file__), "samples"))
     server.run_forever()
 
     server.stop()
