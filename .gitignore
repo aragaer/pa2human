@@ -3,3 +3,5 @@
 __pycache__/
 \#*
 human2pa/hidden_*
+samples/
+vocab/
