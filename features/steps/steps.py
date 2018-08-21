@@ -96,11 +96,11 @@ def step_impl(context):
 
 @when(u'brain asks to translate "{intent}" to {recipient}')
 def step_impl(context, intent, recipient):
-    context.socket.write(json.dumps({"intent": intent, "to": recipient}).encode())
+    context.socket.write(json.dumps({"intent": intent, "to": recipient}).encode()+b'\n')
 
 @when(u'brain asks to translate "{text}" from {source}')
 def step_impl(context, text, source):
-    context.socket.write(json.dumps({"text": text, "from": source}).encode())
+    context.socket.write(json.dumps({"text": text, "from": source}).encode()+b'\n')
 
 
 @then(u'the result is {field} "{value}"')
