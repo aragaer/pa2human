@@ -1,4 +1,3 @@
 -r requirements.txt
 behave
 nose
-yet-another-runner==0.3.0
