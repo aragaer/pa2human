@@ -11,3 +11,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - This changelog
 - requirements.txt and requirements-dev.txt
 - --socket argument to specify which socket should be created
+- initial implementation of translation service
