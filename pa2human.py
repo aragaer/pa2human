@@ -4,32 +4,39 @@ import json
 import logging
 import sys
 
+from twisted.internet import reactor
 from twisted.internet.protocol import Factory
 from twisted.protocols.basic import LineReceiver
-from twisted.internet import reactor
 
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class Translator(LineReceiver):
+class TranslatorProtocol(LineReceiver):
     delimiter = b'\n'
     def lineReceived(self, line):
         _LOGGER.debug("Got line [%s]", line)
         try:
-            json.loads(line.decode())
-            self.sendLine('{"intent": "hello"}'.encode())
+            request = json.loads(line.decode())
         except json.JSONDecodeError:
             self.transport.loseConnection()
+            return
+        if 'text' in request:
+            result = {"intent": "hello"}
+        elif 'intent' in request:
+            result = {"text": "Ой, приветик!"}
+        else:
+            result = {"error": "Either 'intent' or 'text' required"}
+        self.sendLine(json.dumps(result).encode())
 
 
-class TranslatorFactory(Factory):
+class TranslatorProtocolFactory(Factory):
     def buildProtocol(self, _):
-        return Translator()
+        return TranslatorProtocol()
 
 
 def main(args):
-    reactor.listenUNIX(args.socket, TranslatorFactory())
+    reactor.listenUNIX(args.socket, TranslatorProtocolFactory())
     reactor.run()
 
 
