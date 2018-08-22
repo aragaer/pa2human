@@ -1,4 +1,4 @@
-# pa2human
+# pa2human [![Build Status](https://travis-ci.org/aragaer/pa2human.svg?branch=master)](https://travis-ci.org/aragaer/pa2human) [![codecov](https://codecov.io/gh/aragaer/pa2human/branch/master/graph/badge.svg)](https://codecov.io/gh/aragaer/pa2human) [![BCH compliance](https://bettercodehub.com/edge/badge/aragaer/pa2human?branch=master)](https://bettercodehub.com/)
 
 Service that can translate text between human and bot.
 
