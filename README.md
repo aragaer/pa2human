@@ -23,12 +23,16 @@ If message contains `text` field the service treats it as a
 human-entered command and attempts to translate it to intent. The
 response will have the following format: `{"intent": INTENT}`
 
+Translation files from human to PA are located in pa2human directory.
+
 #### PA-to-Human
 
 If message contains `intent` field the service treats it as a
 bot-generated response and attemts to produce a human-readable
 text. The response will have the following format: `{"text":
 TRANSLATION}`
+
+Translation files from human to PA are located in human2pa directory.
 
 #### Error
 

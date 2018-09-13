@@ -1,2 +1,3 @@
 Twisted
+rivescript
 yet-another-runner==0.3.0
