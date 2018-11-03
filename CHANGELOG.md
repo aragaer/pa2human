@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - 'dont-understand' phrase
+- 'good morning' phrase
 
 ### Changed
 - RiveScript is now used instead of hardcoded replies
