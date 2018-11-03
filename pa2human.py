@@ -1,50 +1,58 @@
 #!/usr/bin/env python3
 import argparse
+import atexit
 import json
 import logging
+import os
+import signal
+import socket
 import sys
 
+from channels.poller import Poller
 from rivescript.rivescript import RiveScript
-from twisted.internet import reactor
-from twisted.internet.protocol import Factory
-from twisted.protocols.basic import LineReceiver
 
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class TranslatorProtocol(LineReceiver):
-    def __init__(self, bots):
+class TranslatorServer:
+    def __init__(self, socket, bots):
         self._bots = bots
+        self._poller = Poller()
+        self._socket = socket
+        self._poller.add_server(socket)
 
-    delimiter = b'\n'
-    def lineReceived(self, line):
-        _LOGGER.debug("Got line [%s]", line)
-        try:
-            request = json.loads(line.decode())
-        except json.JSONDecodeError:
-            self.transport.loseConnection()
-            return
-        if 'text' in request:
+    def _translate(self, message):
+        if 'text' in message:
             rs = self._bots['human2pa']
-            result = {"intent": rs.reply('human', request['text'])}
-        elif 'intent' in request:
+            return {"intent": rs.reply('pa', message['text'])}
+        elif 'intent' in message:
             rs = self._bots['pa2human']
-            result = {"text": rs.reply('pa', request['intent'])}
-        else:
-            result = {"error": "Either 'intent' or 'text' required"}
-        self.sendLine(json.dumps(result).encode())
+            return {"text": rs.reply('human', message['intent'])}
+        return {"error": "Either 'intent' or 'text' required"}
+
+    def work(self, timeout=None):
+        for data, channel in self._poller.poll(timeout):
+            if channel == self._socket:
+                _LOGGER.debug("Client connected")
+            else:
+                _LOGGER.debug("Got line [%s]", data.decode())
+                try:
+                    request = json.loads(data.decode())
+                except json.JSONDecodeError:
+                    self._poller.unregister(channel)
+                    channel.close()
+                    continue
+                result = self._translate(request)
+                channel.write(json.dumps(result).encode(), b'\n')
 
 
-class TranslatorProtocolFactory(Factory):
-    def __init__(self, bots):
-        self._bots = bots
-
-    def buildProtocol(self, _):
-        return TranslatorProtocol(self._bots)
+def term(*_):
+    exit(0)
 
 
 def main(args):
+    signal.signal(signal.SIGTERM, term)
     bots = {}
     for bot_name in ('human2pa', 'pa2human'):
         bot = RiveScript(utf8=True)
@@ -52,9 +60,14 @@ def main(args):
         bot.sort_replies()
         bots[bot_name] = bot
 
-    reactor.listenUNIX(args.socket,
-                       TranslatorProtocolFactory(bots))
-    reactor.run()
+    serv = socket.socket(socket.AF_UNIX)
+    serv.bind(args.socket)
+    serv.listen()
+    atexit.register(os.unlink, args.socket)
+
+    server = TranslatorServer(serv, bots)
+    while True:
+        server.work()
 
 
 if __name__ == '__main__':

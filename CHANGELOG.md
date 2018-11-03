@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - RiveScript is now used instead of hardcoded replies
+- Using yet-another-io-channels-library instead of Twisted
 
 ## 0.1.0 - 2018-08-22
 ### Added

@@ -1,3 +1,4 @@
 -r requirements.txt
+yet-another-runner>=0.4.0
 behave
 nose
