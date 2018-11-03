@@ -15,6 +15,12 @@ from rivescript.rivescript import RiveScript
 _LOGGER = logging.getLogger(__name__)
 
 
+try:
+    _JSON_EXCEPTION = json.JSONDecodeError
+except AttributeError:
+    _JSON_EXCEPTION = ValueError
+
+
 class TranslatorServer:
     def __init__(self, socket, bots):
         self._bots = bots
@@ -39,7 +45,7 @@ class TranslatorServer:
                 _LOGGER.debug("Got line [%s]", data.decode())
                 try:
                     request = json.loads(data.decode())
-                except json.JSONDecodeError:
+                except _JSON_EXCEPTION:
                     self._poller.unregister(channel)
                     channel.close()
                     continue
@@ -62,7 +68,7 @@ def main(args):
 
     serv = socket.socket(socket.AF_UNIX)
     serv.bind(args.socket)
-    serv.listen()
+    serv.listen(0)
     atexit.register(os.unlink, args.socket)
 
     server = TranslatorServer(serv, bots)

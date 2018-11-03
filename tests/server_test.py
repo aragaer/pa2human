@@ -19,7 +19,7 @@ class ServerTest(unittest.TestCase):
     def setUp(self):
         serv = socket.socket()
         serv.bind(('127.0.0.1', 0))
-        serv.listen()
+        serv.listen(0)
         self.addCleanup(serv.close)
         self.ts = TranslatorServer(socket=serv,
                                    bots={"pa2human": self.bot, "human2pa": self.bot})
