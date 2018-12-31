@@ -23,7 +23,6 @@ class MainTest(unittest.TestCase):
 
         pa2human.main(args)
 
-        self._server.assert_called()
         self.assertEqual(self._server.call_count, 1)
         sock = self._server.call_args[0][0]
         self.assertIsInstance(sock, socket.socket)
@@ -42,7 +41,6 @@ class MainTest(unittest.TestCase):
         with capture() as out:
             pa2human.main(args)
 
-        self._server.assert_called()
         self.assertEqual(self._server.call_count, 1)
         sock = self._server.call_args[0][0]
         self.assertIsInstance(sock, socket.socket)
@@ -56,7 +54,6 @@ class MainTest(unittest.TestCase):
         with capture() as out:
             pa2human.main(args)
 
-        self._server.assert_called()
         self.assertEqual(self._server.call_count, 1)
         sock = self._server.call_args[0][0]
         self.assertIsInstance(sock, socket.socket)
