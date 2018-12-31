@@ -9,6 +9,7 @@ import time
 from tempfile import mkdtemp
 
 from behave import *
+from channels import SocketChannel
 from nose.tools import eq_, ok_
 
 from utils import timeout
@@ -53,7 +54,11 @@ def step_impl(context):
 
 
 def _connect(context):
-    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    if isinstance(context.socket_path, str):
+        af = socket.AF_UNIX
+    else:
+        af = socket.AF_INET
+    s = socket.socket(af, socket.SOCK_STREAM)
     s.connect(context.socket_path)
     return s
 
@@ -114,3 +119,27 @@ def step_impl(context, field, value):
     expected = {field: value}
     eq_(message, expected,
         "Expected translation '{}', got '{}'".format(expected, message))
+
+
+@when(u'I start pa2human with tcp socket')
+def step_impl(context):
+    context.runner.add("pa2human", command="./pa2human.py")
+    context.runner.start("pa2human", with_args=['--socket', '0.0.0.0:0'])
+    context.add_cleanup(_terminate, context, "pa2human")
+
+
+@then(u'pa2human prints that it is listening')
+def step_impl(context):
+    chan = context.runner.get_channel("pa2human")
+    with timeout(1):
+        while True:
+            line = chan.read()
+            if line:
+                break
+    line = line.decode()
+    expected_head = "Pa2human listening on "
+    offt = len(expected_head)
+    eq_(line[:offt], expected_head)
+    host, port = line[offt:].strip().split(':')
+    context.socket = SocketChannel(socket.create_connection((host, int(port))))
+    context.socket_path = (host, int(port))

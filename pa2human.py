@@ -52,6 +52,10 @@ class TranslatorServer:
                 result = self._translate(request)
                 channel.write(json.dumps(result).encode(), b'\n')
 
+    def run(self):
+        while True:
+            self.work()
+
 
 def term(*_):
     exit(0)
@@ -66,14 +70,21 @@ def main(args):
         bot.sort_replies()
         bots[bot_name] = bot
 
-    serv = socket.socket(socket.AF_UNIX)
-    serv.bind(args.socket)
+    if ':' in args.socket:
+        host, port = args.socket.split(':')
+        serv = socket.socket(socket.AF_INET)
+        serv.bind((host, int(port)))
+        addr = serv.getsockname()
+        print("Pa2human listening on", "{}:{}".format(*addr))
+        sys.stdout.flush()
+    else:
+        serv = socket.socket(socket.AF_UNIX)
+        serv.bind(args.socket)
+        atexit.register(os.unlink, args.socket)
     serv.listen(0)
-    atexit.register(os.unlink, args.socket)
 
     server = TranslatorServer(serv, bots)
-    while True:
-        server.work()
+    server.run()
 
 
 if __name__ == '__main__':

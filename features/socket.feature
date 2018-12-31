@@ -8,7 +8,7 @@ Feature: Socket
      When I start pa2human with that path
      Then the socket appears
       And the socket accepts connections
-      
+
   Scenario: Multiple connections
     Given I have a socket path to use
      When I start pa2human with that path
